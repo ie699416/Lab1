@@ -187,7 +187,7 @@ FORCE_INLINE static void context_switch(task_switch_type_e type)
 	task_list.tasks[task_list.current_task].sp = sp;
 	task_list.current_task = task_list.next_task;
 	task_list.tasks[task_list.current_task].state = S_RUNNING;
-	SCB->ICSR |= SCB_ICSR_PENDSTSET_Msk;
+	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 
 
 }
@@ -218,7 +218,7 @@ void SysTick_Handler(void)
 #ifdef RTOS_ENABLE_IS_ALIVE
 	refresh_is_alive();
 #endif
-	dispatcher();
+	dispatcher(kFromISR);
 	activate_waiting_tasks();
 	reload_systick();
 }
@@ -226,7 +226,7 @@ void SysTick_Handler(void)
 void PendSV_Handler(void)
 {
 	register uint32_t * r0 asm("r0");
-	SCB->ISCR |= SCB_ICSR_PENDSVCLR_Msk;
+	SCB->ICSR |= SCB_ICSR_PENDSVCLR_Msk;
 	r0 = task_list.tasks[task_list.current_task].sp;
 	asm("mov r7,r0");
 
