@@ -25,6 +25,7 @@
 #define STACK_FRAME_SIZE			8
 #define STACK_LR_OFFSET				2
 #define STACK_PSR_OFFSET			1
+#define STACK_PC_OFFSET				2
 #define STACK_PSR_DEFAULT			0x01000000
 
 /**********************************************************************************/
@@ -118,11 +119,14 @@ rtos_task_handle_t rtos_create_task(void (*task_body)(), uint8_t priority,
 		task_list.nTasks++;
 		task_list.tasks[task_list.nTasks].state =
 				kStartSuspended == autostart ? S_SUSPENDED : S_READY;
+		task_list.tasks[task_list.nTasks].stack[RTOS_STACK_SIZE- STACK_PC_OFFSET] = (uint32_t)task_body;
 		task_list.tasks[task_list.nTasks].stack[RTOS_STACK_SIZE
 				- STACK_PSR_OFFSET] = STACK_PSR_DEFAULT;
 		retval = task_list.nTasks;
+		task_list.nTasks++;
 	}
-	task_list.nTasks++;
+	return retval;
+
 
 }
 
@@ -133,6 +137,9 @@ rtos_tick_t rtos_get_clock(void)
 
 void rtos_delay(rtos_tick_t ticks)
 {
+	task_list.tasks[task_list.current_task].state = S_WAITING;
+	task_list.tasks[task_list.current_task].local_tick = ticks;
+	dispatcher(kFromISR);
 
 }
 
@@ -183,8 +190,9 @@ static void dispatcher(task_switch_type_e type)
 
 FORCE_INLINE static void context_switch(task_switch_type_e type)
 {
+
 	register uint32_t * sp asm("sp");
-	task_list.tasks[task_list.current_task].sp = sp;
+	task_list.tasks[task_list.current_task].sp = sp - 9;
 	task_list.current_task = task_list.next_task;
 	task_list.tasks[task_list.current_task].state = S_RUNNING;
 	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
@@ -218,8 +226,9 @@ void SysTick_Handler(void)
 #ifdef RTOS_ENABLE_IS_ALIVE
 	refresh_is_alive();
 #endif
+	task_list.global_tick++;
 	dispatcher(kFromISR);
-	activate_waiting_tasks();
+	//activate_waiting_tasks();
 	reload_systick();
 }
 

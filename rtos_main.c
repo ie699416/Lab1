@@ -10,7 +10,7 @@ void dummy_task1(void)
 	uint8_t counter = 0;
 	for (;;)
 	{
-		PRINTF("IN TASK 1: %i +++++++++++++++\r\n", counter);
+		//PRINTF("IN TASK 1: %i +++++++++++++++\r\n", counter);
 		counter++;
 		rtos_delay(2000);
 	}
@@ -21,7 +21,7 @@ void dummy_task2(void)
 	uint8_t counter = 0;
 	for (;;)
 	{
-		PRINTF("IN TASK 2: %i ***************\r\n", counter);
+		//PRINTF("IN TASK 2: %i ***************\r\n", counter);
 		counter++;
 		rtos_delay(1000);
 	}
@@ -32,7 +32,7 @@ void dummy_task3(void)
 	uint8_t counter = 0;
 	for (;;)
 	{
-		PRINTF("IN TASK 3: %i ---------------\r\n", counter);
+		//PRINTF("IN TASK 3: %i ---------------\r\n", counter);
 		counter++;
 		rtos_delay(4000);
 	}
