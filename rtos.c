@@ -142,17 +142,23 @@ void rtos_delay(rtos_tick_t ticks)
 {
 	task_list.tasks[task_list.current_task].state = S_WAITING;
 	task_list.tasks[task_list.current_task].local_tick = ticks;
-	dispatcher(kFromISR);
+	dispatcher(kFromNormalExec);
 
 }
 
 void rtos_suspend_task(void)
 {
+	task_list.tasks[task_list.current_task].state = S_SUSPENDED;
+	dispatcher(kFromNormalExec);
+
 
 }
 
 void rtos_activate_task(rtos_task_handle_t task)
 {
+	task_list.tasks[task_list.current_task].state = S_READY;
+	dispatcher(kFromNormalExec);
+
 
 }
 
@@ -211,6 +217,20 @@ FORCE_INLINE static void context_switch(task_switch_type_e type)
 static void activate_waiting_tasks()
 {
 
+	rtos_task_handle_t next_task = RTOS_INVALID_TASK;
+	uint8_t index;
+	int8_t highest = -1;
+	for (index = 0; index < task_list.nTasks; index++)
+	{
+		if (S_WAITING == task_list.tasks[index].state)
+		{
+		task_list.tasks[index].local_tick = -1;
+			if(task_list.tasks[index].local_tick == 0)
+			{
+			task_list.tasks[index].state = S_READY;
+			}
+		}
+	}
 }
 
 /**********************************************************************************/
@@ -221,6 +241,7 @@ static void idle_task(void)
 {
 	for (;;)
 	{
+
 
 	}
 }
