@@ -5,52 +5,53 @@
 
 #include "rtos.h"
 
-void dummy_task1(void)
-{
+void dummy_task1(void) {
+	uint8_t retardo = 0;
 	uint8_t counter = 0;
-	for (;;)
-	{
+	for (;;) {
+		retardo = rtos_get_clock();
 		PRINTF("IN TASK 1: %i +++++++++++++++\r\n", counter);
 		counter++;
-		rtos_delay(2000);
+		retardo = rtos_get_clock() - retardo;
+		rtos_delay(2000 - retardo);
 	}
 }
 
-void dummy_task2(void)
-{
+void dummy_task2(void) {
+	uint8_t retardo = 0;
 	uint8_t counter = 0;
-	for (;;)
-	{
+	for (;;) {
+		retardo = rtos_get_clock();
 		PRINTF("IN TASK 2: %i ***************\r\n", counter);
 		counter++;
-		rtos_delay(1000);
+		retardo = rtos_get_clock() - retardo;
+		rtos_delay(1000 - retardo);
 	}
 }
 
-void dummy_task3(void)
-{
+void dummy_task3(void) {
+	uint8_t retardo = 0;
 	uint8_t counter = 0;
-	for (;;)
-	{
+	for (;;) {
+		retardo = rtos_get_clock();
 		PRINTF("IN TASK 3: %i ---------------\r\n", counter);
 		counter++;
-		rtos_delay(4000);
+		retardo = rtos_get_clock() - retardo;
+		rtos_delay(4000 - retardo);
 	}
 }
 
-int main(void)
-{
+int main(void) {
 	BOARD_InitPins();
 	BOARD_BootClockRUN();
 	BOARD_InitDebugConsole();
 
-	rtos_create_task(dummy_task1, 1, kAutoStart);
-	rtos_create_task(dummy_task2, 2, kAutoStart);
-	rtos_create_task(dummy_task3, 1, kAutoStart);
+	rtos_create_task(dummy_task1, 2, kAutoStart);
+	rtos_create_task(dummy_task2, 1, kAutoStart);
+	rtos_create_task(dummy_task3, 3, kAutoStart);
 	rtos_start_scheduler();
 
-	for (;;)
-	{
+	for (;;) {
 		__asm("NOP");
 	}
 }

@@ -58,7 +58,7 @@ typedef struct {
 	uint32_t *sp;
 	void (*task_body)();
 	rtos_tick_t local_tick;
-	uint32_t reserved[10];
+	//uint32_t reserved[10];
 	uint32_t stack[RTOS_STACK_SIZE];
 } rtos_tcb_t;
 
@@ -129,7 +129,7 @@ rtos_task_handle_t rtos_create_task(void (*task_body)(), uint8_t priority,
 }
 
 rtos_tick_t rtos_get_clock(void) {
-	return 0;
+	return (uint8_t)task_list.global_tick;
 }
 
 void rtos_delay(rtos_tick_t ticks) {
